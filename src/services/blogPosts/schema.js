@@ -8,8 +8,16 @@ const blogPostSchema = new Schema(
         title: { type: String, required: true },
         cover: { type: String },
         readTime: {
-            value: { type: Number },
-            unit: { type: String }
+            value: {
+                type: Number,
+                default: function () {
+                    return this.content.split(' ').length / 250
+                }
+            },
+            unit: {
+                type: String,
+                default: "minutes"
+            }
         },
         author: {
             name: { type: String, required: true },

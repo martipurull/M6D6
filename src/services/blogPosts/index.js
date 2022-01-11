@@ -3,7 +3,6 @@ import BlogPostModel from './schema.js'
 import { validationResult } from 'express-validator'
 import { blogPostsValidation } from '../blogPostValidation.js'
 import createHttpError from 'http-errors'
-import { getBlogPosts, postBlogPost } from '../../library/fs-tools.js'
 
 const blogPostsRouter = express.Router()
 
