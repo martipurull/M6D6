@@ -1,0 +1,40 @@
+{
+  "name": "M6D6",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon -e js -r dotenv/config ./src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/martipurull/M6D6.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/martipurull/M6D6/issues"
+  },
+  "homepage": "https://github.com/martipurull/M6D6#readme",
+  "dependencies": {
+    "cloudinary": "^1.28.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "express-list-endpoints": "^6.0.0",
+    "express-validator": "^6.14.0",
+    "fs-extra": "^10.0.0",
+    "http-errors": "^2.0.0",
+    "mongoose": "^6.1.6",
+    "multer": "^1.4.4",
+    "multer-storage-cloudinary": "^4.0.0",
+    "striptags": "^3.2.0",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "dotenv": "^11.0.0",
+    "nodemon": "^2.0.15"
+  }
+}
