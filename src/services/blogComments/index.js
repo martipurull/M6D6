@@ -9,7 +9,7 @@ const blogCommentsRouter = express.Router({ mergeParams: true })
 //endpoints
 blogCommentsRouter.post('/', async (req, res, next) => {
     try {
-        const commentToAdd = new blogCommentsModel(req.body)
+        const commentToAdd = new blogCommentsModel({ ...req.body, createdAt: new Date() })
         const editedBlogPost = await BlogPostsModel.findByIdAndUpdate(req.params.postId, { $push: { comments: commentToAdd } }, { new: true })
         if (editedBlogPost) {
             res.status(201).send(`Comment added successfully to blog post with id ${ req.params.postId }`)
@@ -58,7 +58,8 @@ blogCommentsRouter.put('/:commentId', async (req, res, next) => {
         if (blogPost) {
             const commentIndex = blogPost.comments.findIndex(comment => comment._id.toString() === req.params.commentId)
             if (commentIndex !== -1) {
-                blogPost.comments[commentIndex] = { ...blogPost.comments[commentIndex].toObject(), ...req.body }
+                console.log(blogPost.comments[commentIndex])
+                blogPost.comments[commentIndex] = { ...blogPost.comments[commentIndex], ...req.body, updatedAt: new Date() }
                 await blogPost.save()
                 res.send(blogPost)
             } else {
