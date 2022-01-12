@@ -28,7 +28,8 @@ const blogPostSchema = new Schema(
             {
                 user: { type: String },
                 text: { type: String },
-                createdAt: { type: Date }
+                createdAt: { type: Date },
+                updatedAt: { type: Date }
             }
         ]
     },

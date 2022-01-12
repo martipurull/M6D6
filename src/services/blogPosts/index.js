@@ -130,7 +130,8 @@ blogPostsRouter.put('/:postId/comments/:commentId', async (req, res, next) => {
         if (blogPost) {
             const commentIndex = blogPost.comments.findIndex(comment => comment._id.toString() === req.params.commentId)
             if (commentIndex !== -1) {
-                blogPost.comments[commentIndex] = { ...blogPost.comments[commentIndex], ...req.body, updatedAt: new Date() }
+                const commentToEdit = { ...blogPost.comments[commentIndex].toObject(), ...req.body, updatedAt: new Date() }
+                blogPost.comments[commentIndex] = commentToEdit
                 await blogPost.save()
                 res.send(blogPost)
             } else {
