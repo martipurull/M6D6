@@ -106,6 +106,19 @@ blogPostsRouter.get('/:postId/comments', async (req, res, next) => {
     }
 })
 
+// blogPostsRouter.get('/:postId/comments', async (req, res, next) => {
+//     try {
+//         const blogPostComments = await BlogPostModel.find({ _id: req.params.postId }, { comments: { $slice: 2 } })
+//         if (blogPostComments) {
+//             res.send(blogPostComments)
+//         } else {
+//             next(createHttpError(404, `Blog post with id ${ req.params.postId } does not exist or has been deleted.`))
+//         }
+//     } catch (error) {
+//         next(error)
+//     }
+// })
+
 blogPostsRouter.get('/:postId/comments/:commentId', async (req, res, next) => {
     try {
         const blogPost = await BlogPostModel.findById(req.params.postId)
