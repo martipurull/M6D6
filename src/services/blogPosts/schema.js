@@ -27,7 +27,8 @@ const blogPostSchema = new Schema(
         comments: [
             {
                 user: { type: String },
-                text: { type: String }
+                text: { type: String },
+                createdAt: { type: Date }
             }
         ]
     },

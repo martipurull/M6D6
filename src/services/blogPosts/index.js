@@ -80,7 +80,8 @@ blogPostsRouter.delete('/:postId', async (req, res, next) => {
 //comments endpoints
 blogPostsRouter.post('/:postId', async (req, res, next) => {
     try {
-        const commentToAdd = await new BlogCommentModel(req.body)
+        const uploadedComment = await new BlogCommentModel(req.body)
+        const commentToAdd = { ...uploadedComment.toObject(), createdAt: new Date() }
         const blogPostToAddCommentTo = await BlogPostModel.findByIdAndUpdate(req.params.postId, { $push: { comments: commentToAdd } }, { new: true })
         if (blogPostToAddCommentTo) {
             res.send(blogPostToAddCommentTo)
