@@ -76,6 +76,4 @@ blogPostsRouter.delete('/:postId', async (req, res, next) => {
     }
 })
 
-
-
 export default blogPostsRouter

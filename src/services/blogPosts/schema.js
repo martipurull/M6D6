@@ -23,7 +23,8 @@ const blogPostSchema = new Schema(
             name: { type: String, required: true },
             avatar: { type: String }
         },
-        content: { type: String, required: true }
+        content: { type: String, required: true },
+        comments: []
     },
     {
         timestamps: true
