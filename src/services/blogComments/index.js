@@ -9,14 +9,13 @@ const blogCommentsRouter = express.Router({ mergeParams: true })
 //endpoints
 blogCommentsRouter.post('/', async (req, res, next) => {
     try {
-        const blogPost = await BlogPostsModel.findById(req.params.postId)
-        if (blogPost) {
-            const commentToAdd = new blogCommentsModel(req.body)
-            BlogPostsModel.findByIdAndUpdate(req.params.postId, { $push: { comments: commentToAdd } }, { new: true })
+        const commentToAdd = new blogCommentsModel(req.body)
+        const editedBlogPost = await BlogPostsModel.findByIdAndUpdate(req.params.postId, { $push: { comments: commentToAdd } }, { new: true })
+        if (editedBlogPost) {
+            res.status(201).send(`Comment added successfully to blog post with id ${ req.params.postId }`)
         } else {
             next(createHttpError(404, `Blog post with id ${ req.params.postId } does not exist or has been deleted.`))
         }
-        res.status(201).send(`Comment added successfully to blog post with id ${ req.params.postId }`)
     } catch (error) {
         next(error)
     }
