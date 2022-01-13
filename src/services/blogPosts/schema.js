@@ -2,9 +2,9 @@ import mongoose from "mongoose"
 
 const { Schema, model } = mongoose
 
-const blogPostSchema = new Schema(
+const BlogPostSchema = new Schema(
     {
-        category: { type: String, required: true },
+        category: { type: String, required: true, enum: ["Life", "Life Hacks", "Technology", "Opinion", "Inspiration"] },
         title: { type: String, required: true },
         cover: { type: String },
         readTime: {
@@ -19,10 +19,7 @@ const blogPostSchema = new Schema(
                 default: "minutes"
             }
         },
-        author: {
-            name: { type: String, required: true },
-            avatar: { type: String }
-        },
+        author: { type: Schema.Types.ObjectId, ref: "Author" },
         content: { type: String, required: true },
         comments: [
             {
@@ -38,4 +35,4 @@ const blogPostSchema = new Schema(
     }
 )
 
-export default model("BlogPosts", blogPostSchema)
+export default model("BlogPosts", BlogPostSchema)

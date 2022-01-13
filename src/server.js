@@ -2,7 +2,7 @@ import express from 'express'
 import listEndpoints from 'express-list-endpoints'
 import cors from 'cors'
 import mongoose from 'mongoose'
-import authorsRouter from './services/authors.js'
+import authorsRouter from './services/authors/index.js'
 import blogPostsRouter from './services/blogPosts/index.js'
 import blogCoversRouter from './services/blogCovers.js'
 import authorAvatarsRouter from './services/authorAvatars.js'
@@ -24,7 +24,6 @@ server.use(express.json())
 server.use('/authors', authorsRouter)
 server.use('/authors/:authorId/uploadAvatar', authorAvatarsRouter)
 server.use('/blogPosts', blogPostsRouter)
-// server.use('/blogPosts/:postId/comments', blogCommentsRouter)
 server.use('/blogPosts/:postId/uploadCover', blogCoversRouter)
 
 //error handlers

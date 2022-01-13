@@ -4,6 +4,7 @@ import BlogCommentModel from '../blogComments/schema.js'
 import { validationResult } from 'express-validator'
 import { blogPostsValidation } from '../blogPostValidation.js'
 import createHttpError from 'http-errors'
+import q2m from 'query-to-mongo'
 
 const blogPostsRouter = express.Router()
 
@@ -25,14 +26,14 @@ blogPostsRouter.post('/', blogPostsValidation, async (req, res, next) => {
 
 blogPostsRouter.get('/', async (req, res, next) => {
     try {
-        const blogPosts = await BlogPostModel.find()
-        if (req.query && req.query.title) {
-            const filteredPosts = blogPosts.filter(post => post.title.includes(req.query.title))
-            res.send(filteredPosts)
-        } else {
-            res.send(blogPosts)
-        }
-        res.send(blogPosts)
+        const mongoQuery = q2m(req.query)
+        const noOfPosts = await BlogPostModel.countDocuments(mongoQuery.criteria)
+        const blogPosts = await BlogPostModel.find(mongoQuery.criteria)
+            .limit(mongoQuery.options.limit)
+            .skip(mongoQuery.options.skip)
+            .sort(mongoQuery.options.sort)
+            .populate({ path: "author", select: "firstName lastName" })
+        res.send({ link: mongoQuery.links('/blogPosts', noOfPosts), pageTotal: Math.ceil(noOfPosts / mongoQuery.options.limit), noOfPosts, blogPosts })
     } catch (error) {
         next(error)
     }
@@ -40,7 +41,7 @@ blogPostsRouter.get('/', async (req, res, next) => {
 
 blogPostsRouter.get('/:postId', async (req, res, next) => {
     try {
-        const foundBlogPost = await BlogPostModel.findById(req.params.postId)
+        const foundBlogPost = await BlogPostModel.findById(req.params.postId).populate({ path: "author", select: "firstName lastName email" })
         if (foundBlogPost) {
             res.send(foundBlogPost)
         } else {
@@ -70,7 +71,7 @@ blogPostsRouter.delete('/:postId', async (req, res, next) => {
         if (deletedBlogPost) {
             res.status(204).send()
         } else {
-            next(createHttpError(404, `Blog post with id ${ req.params.postId } does not exist or has already been deleted.`))
+            next(createHttpError(404, `Blog post with id ${ req.params.postId } did not exist or had already been deleted.`))
         }
     } catch (error) {
         next(error)
