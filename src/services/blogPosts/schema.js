@@ -28,11 +28,16 @@ const BlogPostSchema = new Schema(
                 createdAt: { type: Date },
                 updatedAt: { type: Date }
             }
-        ]
+        ],
+        likes: [{ type: Schema.Types.ObjectId, ref: "Author" }],
+        totalLikes: {
+            type: Number,
+            default: function () {
+                return this.likes.length
+            }
+        }
     },
-    {
-        timestamps: true
-    }
+    { timestamps: true }
 )
 
 export default model("BlogPosts", BlogPostSchema)

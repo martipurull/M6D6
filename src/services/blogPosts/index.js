@@ -1,6 +1,7 @@
 import express from 'express'
 import BlogPostModel from './schema.js'
 import BlogCommentModel from '../blogComments/schema.js'
+import AuthorModel from '../authors/schema.js'
 import { validationResult } from 'express-validator'
 import { blogPostsValidation } from '../blogPostValidation.js'
 import createHttpError from 'http-errors'
@@ -94,24 +95,11 @@ blogPostsRouter.post('/:postId', async (req, res, next) => {
     }
 })
 
-blogPostsRouter.get('/:postId/comments', async (req, res, next) => {
-    try {
-        const blogPost = await BlogPostModel.findById(req.params.postId)
-        if (blogPost) {
-            res.send(blogPost.comments)
-        } else {
-            next(createHttpError(404, `Blog post with id ${ req.params.postId } does not exist or has been deleted.`))
-        }
-    } catch (error) {
-        next(error)
-    }
-})
-
 // blogPostsRouter.get('/:postId/comments', async (req, res, next) => {
 //     try {
-//         const blogPostComments = await BlogPostModel.find({ _id: req.params.postId }, { comments: { $slice: 2 } })
-//         if (blogPostComments) {
-//             res.send(blogPostComments)
+//         const blogPost = await BlogPostModel.findById(req.params.postId)
+//         if (blogPost) {
+//             res.send(blogPost.comments)
 //         } else {
 //             next(createHttpError(404, `Blog post with id ${ req.params.postId } does not exist or has been deleted.`))
 //         }
@@ -119,6 +107,20 @@ blogPostsRouter.get('/:postId/comments', async (req, res, next) => {
 //         next(error)
 //     }
 // })
+
+blogPostsRouter.get('/:postId/comments', async (req, res, next) => {
+    try {
+        const mongoQuery = q2m(req.query)
+        const blogPostComments = await BlogPostModel.find({ _id: req.params.postId }, { comments: { $slice: mongoQuery.options.limit } })
+        if (blogPostComments) {
+            res.send(blogPostComments)
+        } else {
+            next(createHttpError(404, `Blog post with id ${ req.params.postId } does not exist or has been deleted.`))
+        }
+    } catch (error) {
+        next(error)
+    }
+})
 
 blogPostsRouter.get('/:postId/comments/:commentId', async (req, res, next) => {
     try {
@@ -164,6 +166,43 @@ blogPostsRouter.delete('/:postId/comments/:commentId', async (req, res, next) =>
         const modifiedBlogPost = await BlogPostModel.findByIdAndUpdate(req.params.postId, { $pull: { comments: { _id: req.params.commentId } } }, { new: true })
         if (modifiedBlogPost) {
             res.send(modifiedBlogPost)
+        } else {
+            next(createHttpError(404, `Blog post with id ${ req.params.postId } does not exist or has been deleted.`))
+        }
+    } catch (error) {
+        next(error)
+    }
+})
+
+//likes endpoints
+blogPostsRouter.post('/:postId/:userId/likes', async (req, res, next) => {
+    try {
+        const user = await AuthorModel.findById(req.params.userId)
+        const doesUserLikePost = await BlogPostModel.findOne({ likes: req.params.userId })
+        if (doesUserLikePost) {
+            res.send(`You already like blog post with id ${ req.params.postId }`)
+        } else {
+            const likedBlogPost = await BlogPostModel.findByIdAndUpdate(req.params.postId, { $push: { likes: user._id } })
+            if (likedBlogPost) {
+                res.send(`You like blog post with id ${ req.params.postId }`)
+            } else {
+                next(createHttpError(404, `Blog post with id ${ req.params.postId } does not exist or has been deleted.`))
+            }
+        }
+    } catch (error) {
+        next(error)
+    }
+})
+
+blogPostsRouter.get('/:postId/likes', async (req, res, next) => {
+    try {
+        const blogPost = await BlogPostModel.findById(req.params.postId)
+        if (blogPost && blogPost.totalLikes < 1) {
+            res.send('Be the first one to like this post')
+        } else if (blogPost && blogPost.totalLikes === 1) {
+            res.send(`${ blogPost.totalLikes } person likes this blog post.`)
+        } else if (blogPost && blogPost.totalLikes > 1) {
+            res.send(`${ blogPost.totalLikes } people like this blog post.`)
         } else {
             next(createHttpError(404, `Blog post with id ${ req.params.postId } does not exist or has been deleted.`))
         }
