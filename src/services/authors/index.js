@@ -3,10 +3,11 @@ import AuthorModel from './schema.js'
 import BlogPostsModel from '../blogPosts/schema.js'
 import createHttpError from 'http-errors'
 import { basicAuth } from '../../auth/basicAuth.js'
+import { adminAuth } from '../../auth/adminAuth.js'
 
 const authorsRouter = express.Router()
 
-authorsRouter.post('/', async (req, res, next) => {
+authorsRouter.post('/', basicAuth, adminAuth, async (req, res, next) => {
     try {
         const newAuthor = new AuthorModel(req.body)
         await newAuthor.save()
@@ -53,7 +54,7 @@ authorsRouter.delete('/me', basicAuth, async (req, res, next) => {
 
 authorsRouter.get('/me/stories', basicAuth, async (req, res, next) => {
     try {
-        const authorPosts = await BlogPostsModel.find({ authors: req.author._id }).populate({ path: "authors", select: "firstName lastName email" })
+        const authorPosts = await BlogPostsModel.find({ authors: req.author._id }).populate({ path: "authors", select: "firstName lastName" })
         authorPosts ? res.send(authorPosts) : next(createHttpError(404, `Author with id ${ req.author._id } does not exist or had already been deleted.`))
     } catch (error) {
         next(error)
@@ -73,7 +74,7 @@ authorsRouter.get('/:authorId', basicAuth, async (req, res, next) => {
     }
 })
 
-authorsRouter.put('/:authorId', basicAuth, async (req, res, next) => {
+authorsRouter.put('/:authorId', basicAuth, adminAuth, async (req, res, next) => {
     try {
         const editedAuthor = await AuthorModel.findByIdAndUpdate(req.params.authorId, req.body, { new: true })
         if (editedAuthor) {
@@ -86,7 +87,7 @@ authorsRouter.put('/:authorId', basicAuth, async (req, res, next) => {
     }
 })
 
-authorsRouter.delete('/:authorId', basicAuth, async (req, res, next) => {
+authorsRouter.delete('/:authorId', basicAuth, adminAuth, async (req, res, next) => {
     try {
         const deletedAuthor = await AuthorModel.findByIdAndDelete(req.params.authorId)
         if (deletedAuthor) {

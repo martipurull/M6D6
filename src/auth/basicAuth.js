@@ -10,7 +10,6 @@ export const basicAuth = async (req, res, next) => {
         const decodedCredentials = atob(base64Credentials)
         const [email, password] = decodedCredentials.split(':')
         const author = await AuthorModel.checkCredentials(email, password)
-        console.log(author)
         if (author) {
             req.author = author
             next()

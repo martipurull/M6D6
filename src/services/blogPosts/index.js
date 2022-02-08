@@ -6,11 +6,13 @@ import { validationResult } from 'express-validator'
 import { blogPostsValidation } from '../blogPostValidation.js'
 import createHttpError from 'http-errors'
 import q2m from 'query-to-mongo'
+import { basicAuth } from '../../auth/basicAuth.js'
+import { adminAuth } from '../../auth/adminAuth.js'
 
 const blogPostsRouter = express.Router()
 
 //endpoints
-blogPostsRouter.post('/', blogPostsValidation, async (req, res, next) => {
+blogPostsRouter.post('/', basicAuth, blogPostsValidation, async (req, res, next) => {
     try {
         const errorList = validationResult(req)
         if (!errorList.isEmpty()) {
@@ -53,7 +55,7 @@ blogPostsRouter.get('/:postId', async (req, res, next) => {
     }
 })
 
-blogPostsRouter.put('/:postId', async (req, res, next) => {
+blogPostsRouter.put('/:postId', basicAuth, adminAuth, async (req, res, next) => {
     try {
         const editedBlogPost = await BlogPostModel.findByIdAndUpdate(req.params.postId, req.body, { new: true })
         if (editedBlogPost) {
@@ -66,7 +68,7 @@ blogPostsRouter.put('/:postId', async (req, res, next) => {
     }
 })
 
-blogPostsRouter.delete('/:postId', async (req, res, next) => {
+blogPostsRouter.delete('/:postId', basicAuth, adminAuth, async (req, res, next) => {
     try {
         const deletedBlogPost = await BlogPostModel.findByIdAndDelete(req.params.postId)
         if (deletedBlogPost) {
@@ -80,7 +82,7 @@ blogPostsRouter.delete('/:postId', async (req, res, next) => {
 })
 
 //comments endpoints
-blogPostsRouter.post('/:postId', async (req, res, next) => {
+blogPostsRouter.post('/:postId', basicAuth, async (req, res, next) => {
     try {
         const uploadedComment = await new BlogCommentModel(req.body)
         const commentToAdd = { ...uploadedComment.toObject(), createdAt: new Date() }
@@ -95,20 +97,7 @@ blogPostsRouter.post('/:postId', async (req, res, next) => {
     }
 })
 
-// blogPostsRouter.get('/:postId/comments', async (req, res, next) => {
-//     try {
-//         const blogPost = await BlogPostModel.findById(req.params.postId)
-//         if (blogPost) {
-//             res.send(blogPost.comments)
-//         } else {
-//             next(createHttpError(404, `Blog post with id ${ req.params.postId } does not exist or has been deleted.`))
-//         }
-//     } catch (error) {
-//         next(error)
-//     }
-// })
-
-blogPostsRouter.get('/:postId/comments', async (req, res, next) => {
+blogPostsRouter.get('/:postId/comments', basicAuth, async (req, res, next) => {
     try {
         const mongoQuery = q2m(req.query)
         const blogPostComments = await BlogPostModel.find({ _id: req.params.postId }, { comments: { $slice: mongoQuery.options.limit } })
@@ -122,7 +111,7 @@ blogPostsRouter.get('/:postId/comments', async (req, res, next) => {
     }
 })
 
-blogPostsRouter.get('/:postId/comments/:commentId', async (req, res, next) => {
+blogPostsRouter.get('/:postId/comments/:commentId', basicAuth, async (req, res, next) => {
     try {
         const blogPost = await BlogPostModel.findById(req.params.postId)
         if (blogPost) {
@@ -140,7 +129,7 @@ blogPostsRouter.get('/:postId/comments/:commentId', async (req, res, next) => {
     }
 })
 
-blogPostsRouter.put('/:postId/comments/:commentId', async (req, res, next) => {
+blogPostsRouter.put('/:postId/comments/:commentId', basicAuth, adminAuth, async (req, res, next) => {
     try {
         const blogPost = await BlogPostModel.findById(req.params.postId)
         if (blogPost) {
@@ -161,7 +150,7 @@ blogPostsRouter.put('/:postId/comments/:commentId', async (req, res, next) => {
     }
 })
 
-blogPostsRouter.delete('/:postId/comments/:commentId', async (req, res, next) => {
+blogPostsRouter.delete('/:postId/comments/:commentId', basicAuth, adminAuth, async (req, res, next) => {
     try {
         const modifiedBlogPost = await BlogPostModel.findByIdAndUpdate(req.params.postId, { $pull: { comments: { _id: req.params.commentId } } }, { new: true })
         if (modifiedBlogPost) {
@@ -175,7 +164,7 @@ blogPostsRouter.delete('/:postId/comments/:commentId', async (req, res, next) =>
 })
 
 //likes endpoints
-blogPostsRouter.post('/:postId/:userId/likes', async (req, res, next) => {
+blogPostsRouter.post('/:postId/:userId/likes', basicAuth, async (req, res, next) => {
     try {
         const user = await AuthorModel.findById(req.params.userId)
         const doesUserLikePost = await BlogPostModel.findOne({ likes: req.params.userId })

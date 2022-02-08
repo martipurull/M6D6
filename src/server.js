@@ -6,7 +6,7 @@ import authorsRouter from './services/authors/index.js'
 import blogPostsRouter from './services/blogPosts/index.js'
 import blogCoversRouter from './services/blogCovers.js'
 import authorAvatarsRouter from './services/authorAvatars.js'
-import { badRequestHandler, unauthorisedHandler, notFoundHandler, genericErrorHandler } from './errorHandlers.js'
+import { badRequestHandler, unauthorisedHandler, notFoundHandler, genericErrorHandler, forbiddenHandler } from './errorHandlers.js'
 import { join } from 'path'
 
 const server = express()
@@ -29,6 +29,7 @@ server.use('/blogPosts/:postId/uploadCover', blogCoversRouter)
 //error handlers
 server.use(badRequestHandler)
 server.use(unauthorisedHandler)
+server.use(forbiddenHandler)
 server.use(notFoundHandler)
 server.use(genericErrorHandler)
 

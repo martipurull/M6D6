@@ -14,6 +14,14 @@ export const unauthorisedHandler = (err, req, res, next) => {
     }
 }
 
+export const forbiddenHandler = (err, req, res, next) => {
+    if (err.status === 403) {
+        res.status(403).send({ message: err.message })
+    } else {
+        next(err)
+    }
+}
+
 export const notFoundHandler = (err, req, res, next) => {
     if (err.status === 404) {
         res.status(404).send({ message: err.message })
@@ -31,6 +39,6 @@ export const dateConflictHandler = (err, req, res, next) => {
 }
 
 export const genericErrorHandler = (err, req, res, next) => {
-    console.log("A generic error occurred and we ain't revealing it. Developer's eyes only: ", err)
+    console.log("A generic server error occurred. Developer's eyes only: ", err)
     res.status(500).send({ message: "Something went wrong and we're working hard on a solution!" })
 }
