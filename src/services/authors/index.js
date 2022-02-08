@@ -1,6 +1,7 @@
 import express from 'express'
 import AuthorModel from './schema.js'
 import createHttpError from 'http-errors'
+import { basicAuth } from '../../auth/basicAuth.js'
 
 const authorsRouter = express.Router()
 
@@ -14,7 +15,7 @@ authorsRouter.post('/', async (req, res, next) => {
     }
 })
 
-authorsRouter.get('/', async (req, res, next) => {
+authorsRouter.get('/', basicAuth, async (req, res, next) => {
     try {
         const authors = await AuthorModel.find()
         res.send(authors)
@@ -23,7 +24,7 @@ authorsRouter.get('/', async (req, res, next) => {
     }
 })
 
-authorsRouter.get('/:authorId', async (req, res, next) => {
+authorsRouter.get('/:authorId', basicAuth, async (req, res, next) => {
     try {
         const foundAuthor = await AuthorModel.findById(req.params.authorId)
         if (foundAuthor) {
@@ -36,7 +37,7 @@ authorsRouter.get('/:authorId', async (req, res, next) => {
     }
 })
 
-authorsRouter.put('/:authorId', async (req, res, next) => {
+authorsRouter.put('/:authorId', basicAuth, async (req, res, next) => {
     try {
         const editedAuthor = await AuthorModel.findByIdAndUpdate(req.params.authorId, req.body, { new: true })
         if (editedAuthor) {
@@ -49,7 +50,7 @@ authorsRouter.put('/:authorId', async (req, res, next) => {
     }
 })
 
-authorsRouter.delete('/:authorId', async (req, res, next) => {
+authorsRouter.delete('/:authorId', basicAuth, async (req, res, next) => {
     try {
         const deletedAuthor = await AuthorModel.findByIdAndDelete(req.params.authorId)
         if (deletedAuthor) {
