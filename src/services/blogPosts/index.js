@@ -18,7 +18,7 @@ blogPostsRouter.post('/', blogPostsValidation, async (req, res, next) => {
         } else {
             const newBlogPost = new BlogPostModel(req.body)
             await newBlogPost.save()
-            res.status(201).send({ id: newBlogPost._id })
+            res.status(201).send(newBlogPost)
         }
     } catch (error) {
         next(error)
@@ -33,7 +33,7 @@ blogPostsRouter.get('/', async (req, res, next) => {
             .limit(mongoQuery.options.limit)
             .skip(mongoQuery.options.skip)
             .sort(mongoQuery.options.sort)
-            .populate({ path: "author", select: "firstName lastName" })
+            .populate({ path: "authors", select: "firstName lastName" })
         res.send({ link: mongoQuery.links('/blogPosts', noOfPosts), pageTotal: Math.ceil(noOfPosts / mongoQuery.options.limit), noOfPosts, blogPosts })
     } catch (error) {
         next(error)
@@ -42,7 +42,7 @@ blogPostsRouter.get('/', async (req, res, next) => {
 
 blogPostsRouter.get('/:postId', async (req, res, next) => {
     try {
-        const foundBlogPost = await BlogPostModel.findById(req.params.postId).populate({ path: "author", select: "firstName lastName email" })
+        const foundBlogPost = await BlogPostModel.findById(req.params.postId).populate({ path: "authors", select: "firstName lastName email" })
         if (foundBlogPost) {
             res.send(foundBlogPost)
         } else {

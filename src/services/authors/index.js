@@ -53,7 +53,7 @@ authorsRouter.delete('/me', basicAuth, async (req, res, next) => {
 
 authorsRouter.get('/me/stories', basicAuth, async (req, res, next) => {
     try {
-        const authorPosts = await BlogPostsModel.find({ author: req.author._id })
+        const authorPosts = await BlogPostsModel.find({ authors: req.author._id }).populate({ path: "authors", select: "firstName lastName email" })
         authorPosts ? res.send(authorPosts) : next(createHttpError(404, `Author with id ${ req.author._id } does not exist or had already been deleted.`))
     } catch (error) {
         next(error)

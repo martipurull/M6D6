@@ -19,7 +19,7 @@ const BlogPostSchema = new Schema(
                 default: "minutes"
             }
         },
-        author: { type: Schema.Types.ObjectId, ref: "Author" },
+        authors: [{ type: Schema.Types.ObjectId, ref: "Author" }],
         content: { type: String, required: true },
         comments: [
             {
