@@ -24,6 +24,32 @@ authorsRouter.get('/', basicAuth, async (req, res, next) => {
     }
 })
 
+authorsRouter.get('/me', basicAuth, async (req, res, next) => {
+    try {
+        res.send(req.author)
+    } catch (error) {
+        next(error)
+    }
+})
+
+authorsRouter.put('/me', basicAuth, async (req, res, next) => {
+    try {
+        const editedAuthor = await AuthorModel.findByIdAndUpdate(req.author._id, req.body, { new: true })
+        editedAuthor ? res.send(editedAuthor) : next(createHttpError(404, `Author with id ${ req.author._id } not found.`))
+    } catch (error) {
+        next(error)
+    }
+})
+
+authorsRouter.delete('/me', basicAuth, async (req, res, next) => {
+    try {
+        const deletedAuthor = await AuthorModel.findByIdAndDelete(req.author._id)
+        deletedAuthor ? res.status(204).send() : next(createHttpError(404, `Author with id ${ req.author._id } did not exist or had already been deleted.`))
+    } catch (error) {
+        next(error)
+    }
+})
+
 authorsRouter.get('/:authorId', basicAuth, async (req, res, next) => {
     try {
         const foundAuthor = await AuthorModel.findById(req.params.authorId)
