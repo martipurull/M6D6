@@ -1,5 +1,6 @@
 import mongoose from "mongoose"
 import bcrypt from 'bcrypt'
+import { IAuthor, IAuthorModel } from "../../types/authorInterfaces"
 
 const { Schema, model } = mongoose
 
@@ -9,6 +10,7 @@ const AuthorSchema = new Schema(
         lastName: { type: String, required: true },
         dob: { type: String },
         avatar: { type: String },
+        filename: { type: String },
         email: { type: String, required: true },
         password: { type: String, required: true },
         role: { type: String, enum: ['User', 'Admin'], default: 'User' }
@@ -37,7 +39,7 @@ AuthorSchema.methods.toJSON = function () {
 }
 
 //this is a custom method we will use in the basicAuth middleware
-AuthorSchema.statics.checkCredentials = async function (email, plainPW) {
+AuthorSchema.statics.authenticate = async function (email, plainPW) {
     const author = await this.findOne({ email })
     if (author) {
         const pwMatch = await bcrypt.compare(plainPW, author.password)
@@ -51,4 +53,4 @@ AuthorSchema.statics.checkCredentials = async function (email, plainPW) {
     }
 }
 
-export default model("Author", AuthorSchema)
+export default model<IAuthor, IAuthorModel>("Author", AuthorSchema)

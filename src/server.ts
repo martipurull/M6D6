@@ -4,9 +4,7 @@ import cors from 'cors'
 import mongoose from 'mongoose'
 import authorsRouter from './services/authors/index.js'
 import blogPostsRouter from './services/blogPosts/index.js'
-import blogCoversRouter from './services/blogCovers.js'
-import authorAvatarsRouter from './services/authorAvatars.js'
-import { badRequestHandler, unauthorisedHandler, notFoundHandler, genericErrorHandler, forbiddenHandler } from './errorHandlers.js'
+import { errorHandler } from './errorHandlers.js'
 import { join } from 'path'
 
 const server = express()
@@ -22,18 +20,12 @@ server.use(express.json())
 
 //endpoints
 server.use('/authors', authorsRouter)
-server.use('/authors/:authorId/uploadAvatar', authorAvatarsRouter)
 server.use('/blogPosts', blogPostsRouter)
-server.use('/blogPosts/:postId/uploadCover', blogCoversRouter)
 
 //error handlers
-server.use(badRequestHandler)
-server.use(unauthorisedHandler)
-server.use(forbiddenHandler)
-server.use(notFoundHandler)
-server.use(genericErrorHandler)
+server.use(errorHandler)
 
-mongoose.connect(process.env.MONGO_CONNECTION)
+mongoose.connect(<string>process.env.MONGO_CONNECTION)
 
 mongoose.connection.on("connected", () => {
     console.log("Connected to Mongo!")
@@ -41,9 +33,9 @@ mongoose.connection.on("connected", () => {
 
 server.listen(port, () => {
     console.table(listEndpoints(server))
-    console.log(`Server running on port: ${ port }`)
+    console.log(`Server running on port: ${port}`)
 })
 
-mongoose.connection.on("error", err => {
+mongoose.connection.on("error", (err: any) => {
     console.log(err)
 })

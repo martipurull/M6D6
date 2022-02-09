@@ -7,6 +7,7 @@ const BlogPostSchema = new Schema(
         category: { type: String, required: true, enum: ["Life", "Life Hacks", "Technology", "Opinion", "Inspiration"] },
         title: { type: String, required: true },
         cover: { type: String },
+        filename: { type: String },
         readTime: {
             value: {
                 type: Number,
@@ -30,14 +31,10 @@ const BlogPostSchema = new Schema(
             }
         ],
         likes: [{ type: Schema.Types.ObjectId, ref: "Author" }],
-        totalLikes: {
-            type: Number,
-            default: function () {
-                return this.likes.length
-            }
-        }
     },
-    { timestamps: true }
+    { timestamps: true, toJSON: { virtuals: true } }
 )
+
+BlogPostSchema.virtual('totalLikes').get(function (this: any) { return this.likes.length })
 
 export default model("BlogPosts", BlogPostSchema)
